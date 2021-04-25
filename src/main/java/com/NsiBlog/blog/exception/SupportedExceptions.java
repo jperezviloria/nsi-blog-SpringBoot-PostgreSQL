@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 public enum SupportedExceptions {
 
     AUTHOR_BAD_PREREQUISITES(AuthorInputNullName.class, HttpStatus.PRECONDITION_FAILED),
-    AUTHOR_NOT_FOUND(NullPointerException.class, HttpStatus.NOT_FOUND);
+    AUTHOR_NOT_FOUND(AuthorDoesNotExists.class, HttpStatus.NOT_FOUND);
 
     private Class<? extends Throwable> exceptionClass;
     private HttpStatus status;

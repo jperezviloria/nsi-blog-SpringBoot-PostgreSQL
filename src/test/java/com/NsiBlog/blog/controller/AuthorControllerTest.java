@@ -1,6 +1,7 @@
 package com.NsiBlog.blog.controller;
 
 import com.NsiBlog.blog.dto.RestResponse;
+import com.NsiBlog.blog.exception.AuthorDoesNotExists;
 import com.NsiBlog.blog.exception.AuthorInputNullName;
 import com.NsiBlog.blog.model.Author;
 import com.NsiBlog.blog.service.AuthorService;
@@ -28,6 +29,11 @@ public class AuthorControllerTest {
 
     @Mock
     private AuthorService authorService;
+
+    @Before
+    public void setup(){
+        authorController = new AuthorController(authorService);
+    }
 
     private static Author regularAuthor =
             new Author(
@@ -86,10 +92,6 @@ public class AuthorControllerTest {
                     false);
 
 
-    @Before
-    public void setup(){
-        authorController = new AuthorController(authorService);
-    }
 
     // Successful/HappyCase test
     @Test
@@ -100,11 +102,28 @@ public class AuthorControllerTest {
     }
 
 
+    // Test for expected exceptions
+    @Test(expected = AuthorDoesNotExists.class)
+    public void itShouldCheckIfAuthorDoesNotExists(){
+        doThrow(AuthorDoesNotExists.of(authorThatNameNotExist))
+                .when(authorService)
+                .getAuthorByName(authorThatNameNotExist);
+        authorController.getAuthorByName(authorThatNameNotExist);
+    }
+
+    // Test for expected exceptions
+    @Test(expected = AuthorInputNullName.class)
+    public void itShouldCheckIfAuthorHasNullName(){
+        doThrow(AuthorInputNullName.of(namedNullAuthor))
+                .when(authorService)
+                .getAuthorByName(namedNullAuthor);
+        authorController.getAuthorByName(namedNullAuthor);
+    }
 
 
     // Test for expected exceptions
     //@Test(expected = AuthorInputNullName.class)
-    @Test
+    @Test(expected = AuthorInputNullName.class)
     public void testThatInputNullNameCannotBeSaved(){
         doThrow(AuthorInputNullName.of(namedNullAuthor))
                 .when(authorService)

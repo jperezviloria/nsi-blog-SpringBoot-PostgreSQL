@@ -1,6 +1,7 @@
 package com.NsiBlog.blog.controller;
 
 import com.NsiBlog.blog.dto.RestResponse;
+import com.NsiBlog.blog.exception.AuthorDoesNotExists;
 import com.NsiBlog.blog.exception.AuthorInputNullName;
 import com.NsiBlog.blog.model.Author;
 import com.NsiBlog.blog.service.AuthorService;
@@ -47,18 +48,14 @@ public class AuthorController {
     public RestResponse<List<Author>> getAuthorByName(@RequestBody Author author){
         List<Author> authors = null;
         HttpStatus httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-        try{
-            List response = authorService.getAuthorByName(author);
-            if(response != null){
-                httpStatus = HttpStatus.OK;
-                authors = response;
-            } else {
-                httpStatus = HttpStatus.NO_CONTENT;
-            }
-        }catch (Exception error){
-            error.getCause();
-            System.out.println("mensaje SMTP enviado");
-        }
+        if(author.getName() == null)
+            throw AuthorInputNullName.of(author);
+        List response = authorService.getAuthorByName(author);
+        if(response == null)
+            throw AuthorDoesNotExists.of(author);
+        httpStatus = HttpStatus.OK;
+        authors = response;
+
         return new RestResponse<>(httpStatus, authors);
     }
 
@@ -85,17 +82,16 @@ public class AuthorController {
     public RestResponse<Integer> saveAuthor(@RequestBody Author author){
        int particularAuthor = 0;
        HttpStatus httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-       try{
-           int response = authorService.saveAuthor(author);
-           if(response != 0){
-              httpStatus = HttpStatus.OK;
-              particularAuthor = response;
-           }else{
-               httpStatus = HttpStatus.PRECONDITION_FAILED;
-           }
-       }catch (AuthorInputNullName error){
-           System.out.println("mensaje SMTP enviado");
+       if (author.getEmail() == null || author.getName() == null || author.getSurname() == null|| author.getPassword() == null)
+           throw AuthorInputNullName.of(author);
+       int response = authorService.saveAuthor(author);
+       if(response != 0){
+          httpStatus = HttpStatus.OK;
+          particularAuthor = response;
+       }else{
+           httpStatus = HttpStatus.PRECONDITION_FAILED;
        }
+       //throw AuthorInputNullName;
        return new RestResponse<>(httpStatus, particularAuthor);
     }
 
