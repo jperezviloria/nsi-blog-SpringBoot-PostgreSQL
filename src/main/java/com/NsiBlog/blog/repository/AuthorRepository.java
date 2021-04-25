@@ -19,15 +19,23 @@ public interface AuthorRepository extends JpaRepository<Author, Integer> {
 
     String sql2 = "SELECT * FROM Author WHERE name = :name";
     @Query(value = sql2, nativeQuery = true)
-    Author getAuthorByName(@Param("name") String name);
+    List getAuthorByName(@Param("name") String name);
 
-    String sql3 = "INSERT INTO (name, surname, email, password) VALUES( :name, :surname, :email, :password) RETURNING id";
+    String sql3 = "SELECT * FROM Author WHERE surname = :surname";
     @Query(value = sql3, nativeQuery = true)
+    List getAuthorBySurname(@Param("surname") String surname);
+
+    String sql4 = "INSERT INTO Author (name, surname, email, password) VALUES( :name, :surname, :email, :password) RETURNING id";
+    @Query(value = sql4, nativeQuery = true)
     int saveAuthor(@Param("name") String name,
                       @Param("surname") String surname,
                       @Param("email") String email,
                       @Param("password") String password);
 
-
+    @Query("SELECT email FROM Author " +
+            "WHERE EXISTS " +
+            "(SELECT email FROM Author " +
+            "WHERE email = '?1')")
+    String selectExistsEmail(String email);
 
 }

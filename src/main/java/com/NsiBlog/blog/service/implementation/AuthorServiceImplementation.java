@@ -20,8 +20,13 @@ public class AuthorServiceImplementation implements AuthorService {
     }
 
     @Override
-    public Author getAuthorByName(Author author) {
+    public List getAuthorByName(Author author) {
         return authorRepository.getAuthorByName(author.getName());
+    }
+
+    @Override
+    public List getAuthorBySurname(Author author) {
+        return authorRepository.getAuthorBySurname(author.getSurname());
     }
 
     @Override

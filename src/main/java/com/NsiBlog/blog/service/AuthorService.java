@@ -11,7 +11,9 @@ public interface AuthorService {
 
     List getAllAuthor();
 
-    Author getAuthorByName(Author author);
+    List getAuthorByName(Author author);
+
+    List getAuthorBySurname(Author author);
 
     int saveAuthor(Author author);
 

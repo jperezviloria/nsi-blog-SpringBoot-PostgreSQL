@@ -1,7 +1,9 @@
 package com.NsiBlog.blog.controller;
 
 import com.NsiBlog.blog.dto.RestResponse;
+import com.NsiBlog.blog.exception.AuthorInputNullName;
 import com.NsiBlog.blog.model.Author;
+import com.NsiBlog.blog.service.AuthorService;
 import com.NsiBlog.blog.service.implementation.AuthorServiceImplementation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,9 +15,12 @@ import java.util.List;
 @RequestMapping("author")
 public class AuthorController {
 
+    private final AuthorService authorService;
 
     @Autowired
-    AuthorServiceImplementation authorServiceImplementation;
+    public AuthorController(AuthorService authorService){
+        this.authorService = authorService;
+    }
 
 
     @GetMapping
@@ -23,7 +28,7 @@ public class AuthorController {
         List<Author> authors = null;
         HttpStatus httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
         try{
-            List<Author> response = authorServiceImplementation.getAllAuthor();
+            List response = authorService.getAllAuthor();
             if(!response.isEmpty()){
                 httpStatus = HttpStatus.OK;
                 authors = response;
@@ -39,14 +44,14 @@ public class AuthorController {
 
 
     @GetMapping("/filter/name")
-    public RestResponse<Author> getAuthorByName(@RequestBody Author author){
-        Author particularAuthor = null;
+    public RestResponse<List<Author>> getAuthorByName(@RequestBody Author author){
+        List<Author> authors = null;
         HttpStatus httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
         try{
-            Author response = authorServiceImplementation.getAuthorByName(author);
+            List response = authorService.getAuthorByName(author);
             if(response != null){
                 httpStatus = HttpStatus.OK;
-                particularAuthor = response;
+                authors = response;
             } else {
                 httpStatus = HttpStatus.NO_CONTENT;
             }
@@ -54,7 +59,26 @@ public class AuthorController {
             error.getCause();
             System.out.println("mensaje SMTP enviado");
         }
-        return new RestResponse<>(httpStatus, particularAuthor);
+        return new RestResponse<>(httpStatus, authors);
+    }
+
+    @GetMapping("/filter/surname")
+    public RestResponse<List<Author>> getAuthorBySurname(@RequestBody Author author){
+        List<Author> authors = null;
+        HttpStatus httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+        try{
+            List response = authorService.getAuthorBySurname(author);
+            if(response != null){
+                httpStatus = HttpStatus.OK;
+                authors = response;
+            } else {
+                httpStatus = HttpStatus.NO_CONTENT;
+            }
+        }catch (Exception error){
+            error.getCause();
+            System.out.println("mensaje SMTP enviado");
+        }
+        return new RestResponse<>(httpStatus, authors);
     }
 
     @PostMapping
@@ -62,15 +86,14 @@ public class AuthorController {
        int particularAuthor = 0;
        HttpStatus httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
        try{
-           int response = authorServiceImplementation.saveAuthor(author);
+           int response = authorService.saveAuthor(author);
            if(response != 0){
               httpStatus = HttpStatus.OK;
               particularAuthor = response;
            }else{
                httpStatus = HttpStatus.PRECONDITION_FAILED;
            }
-       }catch (Exception error){
-           error.getCause();
+       }catch (AuthorInputNullName error){
            System.out.println("mensaje SMTP enviado");
        }
        return new RestResponse<>(httpStatus, particularAuthor);
